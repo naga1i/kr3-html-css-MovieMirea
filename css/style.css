@@ -95,6 +95,47 @@ body {
   line-height: 1.5;
   color: var(--color-text);
   background-color: var(--color-bg);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* Плавная анимация смены тёмной и светлой темы для всех блоков */
+.site-header,
+.site-footer,
+.hero,
+.advantage-card,
+.movie-card,
+.review-card,
+.afisha-filters,
+.filters-form__fieldset,
+.about-cinema,
+.cinema-stats__item,
+.contact-card,
+.faq__item,
+.booking-form__fieldset,
+.booking-form__input,
+.booking-form__select,
+.booking-form__textarea,
+.snack-option,
+.hall-card,
+.hall-badge,
+.seat,
+.order-summary,
+.table-wrapper,
+.price-table__cell,
+.booking-dialog,
+.chat-widget__window,
+.chat-widget__header,
+.chat-widget__form,
+.chat-widget__input,
+.chat-msg,
+.chat-widget__chip,
+.success-message,
+.alert-warning {
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 a {
