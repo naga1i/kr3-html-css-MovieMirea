@@ -604,3 +604,130 @@ if (bookingPageForm && hallGrid) {
   renderHallForCurrentMovie();
   updateBookingSummary();
 }
+
+// ===============================
+// 5. Виджет онлайн чат-консультанта
+// ===============================
+const initChatWidget = () => {
+  const widget = document.createElement('div');
+  widget.className = 'chat-widget';
+  widget.innerHTML = `
+    <div class="chat-widget__window" id="chat-window" role="dialog" aria-label="Чат-консультант" hidden>
+      <div class="chat-widget__header">
+        <div>
+          <p class="chat-widget__title">Консультант MovieMirea</p>
+          <span class="chat-widget__status">&#9679; Онлайн — отвечаем сразу</span>
+        </div>
+        <button class="chat-widget__close" type="button" id="chat-close" aria-label="Закрыть чат">&times;</button>
+      </div>
+
+      <div class="chat-widget__messages" id="chat-messages">
+        <div class="chat-msg chat-msg--bot">
+          Здравствуйте! Я онлайн-консультант кинотеатра «MovieMirea». Подсказать расписание, цены на билеты или как добраться?
+        </div>
+      </div>
+
+      <div class="chat-widget__quick" id="chat-quick">
+        <button class="chat-widget__chip" type="button" data-question="Какие цены на билеты?">Цены на билеты</button>
+        <button class="chat-widget__chip" type="button" data-question="Есть ли скидки студентам?">Скидки студентам</button>
+        <button class="chat-widget__chip" type="button" data-question="Где вы находитесь?">Адрес и метро</button>
+      </div>
+
+      <form class="chat-widget__form" id="chat-form">
+        <input
+          class="chat-widget__input"
+          id="chat-input"
+          type="text"
+          placeholder="Введите ваш вопрос..."
+          autocomplete="off"
+          required
+        >
+        <button class="button button--primary chat-widget__send" type="submit">Отправить</button>
+      </form>
+    </div>
+
+    <button class="chat-widget__toggle" type="button" id="chat-toggle" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span>Чат-консультант</span>
+    </button>
+  `;
+
+  document.body.appendChild(widget);
+
+  const chatWindow = document.getElementById('chat-window');
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatClose = document.getElementById('chat-close');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const quickChips = widget.querySelectorAll('.chat-widget__chip');
+
+  const getBotReply = (text) => {
+    const q = text.toLowerCase();
+    if (q.includes('цен') || q.includes('стоим') || q.includes('билет')) {
+      return 'Стандартный билет — от 350 до 450 руб., VIP-реклайнер — от 700 до 850 руб., детский — от 240 руб., студенческий — от 290 руб.';
+    }
+    if (q.includes('студ') || q.includes('скидк') || q.includes('льгот')) {
+      return 'Для студентов действует льготный тариф 290–350 руб. при предъявлении студенческого билета на контроле.';
+    }
+    if (q.includes('адрес') || q.includes('где') || q.includes('метро') || q.includes('добрат')) {
+      return 'Мы находимся по адресу: г. Москва, пр-т Вернадского, д. 78 (5 минут от м. «Юго-Западная» или «Проспект Вернадского»). Бесплатная парковка 4 часа!';
+    }
+    if (q.includes('попкорн') || q.includes('бар') || q.includes('еда')) {
+      return 'Вы можете добавить карамельный попкорн (+250 руб.), начос (+300 руб.) и напитки (+150 руб.) прямо на странице Бронирования.';
+    }
+    if (q.includes('возврат') || q.includes('вернут')) {
+      return 'Вернуть электронный билет без комиссии можно не позднее чем за 30 минут до начала сеанса.';
+    }
+    return 'Спасибо за обращение! Оператор подключится в течение минуты или вы можете позвонить в кассу по номеру +7 (495) 777-24-00.';
+  };
+
+  const appendMessage = (text, sender) => {
+    const msg = document.createElement('div');
+    msg.className = `chat-msg chat-msg--${sender}`;
+    msg.textContent = text;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  };
+
+  const handleUserQuestion = (questionText) => {
+    appendMessage(questionText, 'user');
+    setTimeout(() => {
+      appendMessage(getBotReply(questionText), 'bot');
+    }, 350);
+  };
+
+  chatToggle.addEventListener('click', () => {
+    const isHidden = chatWindow.hidden;
+    chatWindow.hidden = !isHidden;
+    chatToggle.setAttribute('aria-expanded', String(isHidden));
+    if (isHidden) {
+      chatInput.focus();
+    }
+  });
+
+  chatClose.addEventListener('click', () => {
+    chatWindow.hidden = true;
+    chatToggle.setAttribute('aria-expanded', 'false');
+  });
+
+  quickChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      handleUserQuestion(chip.dataset.question);
+    });
+  });
+
+  chatForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) {
+      return;
+    }
+    chatInput.value = '';
+    handleUserQuestion(text);
+  });
+};
+
+initChatWidget();
